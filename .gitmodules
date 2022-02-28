@@ -1,0 +1,8 @@
+[submodule "packages/turtlebot3"]
+	url = https://github.com/ROBOTIS-GIT/turtlebot3/tree/noetic-devel
+[submodule "packages/turtlebot3_msgs"]
+	url = https://github.com/ROBOTIS-GIT/turtlebot3_msgs/tree/noetic-devel
+[submodule "packages/turtlebot3_simulations"]
+	url = https://github.com/ROBOTIS-GIT/turtlebot3_simulations/tree/noetic-devel
+[submodule "packages/slam_toolbox"]
+	url = https://github.com/SteveMacenski/slam_toolbox/tree/noetic-devel
