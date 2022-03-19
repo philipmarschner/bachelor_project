@@ -1,7 +1,6 @@
 # For a comprehensive .gitignore for pycharm, see https://gist.github.com/MOOOWOOO/3cf91616c9f3bbc3d1339adfc707b08a
 
 *~
-*.png
 swarm.egg-info/
 container_id
 __pycache__/
