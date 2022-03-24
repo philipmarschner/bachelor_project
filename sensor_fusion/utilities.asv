@@ -4,7 +4,7 @@ classdef utilities
        obstacleCheckSteps
    end
    methods
-      function obj = utilities(deltaQ_, obstacleCheckSteps_)
+      function obj = initUtilites(deltaQ_, obstacleCheckSteps_)
          obj.deltaQ = deltaQ_;
          obj.obstacleCheckSteps = obstacleCheckSteps_;
       end
@@ -24,17 +24,17 @@ classdef utilities
          qNew = round(qNew);
       end
 
-      function isLegal = isLegalPath(obj, q1, q2, map)
+      function isLeagal = isLeagalPath(obj, q1, q2, map)
          tempq1 = reshape(q1,2,[])';
          tempq2 = reshape(q2,2,[])';
 
          for i = 1:length(tempq1(:,1))
-             if(~obstacleFreePath(tempq1(i,:),tempq2(i,:),map,obj.obstacleCheckSteps))
-                 isLegal = false;
+             if(~obstacleFreePath(tempq1(i,:),tempq2(i,:),map))
+                 isLeagal = false;
                  return
              end
          end
-         isLegal = true;
+         isLeagal = true;
       end
 
       function newGraph = addConfiguration(obj, gOld, qnear, qnew)

@@ -6,10 +6,10 @@ close all;
 run('config.m') %run config file with properties
 %%Test data
 %Properties
-deltaQ = 2;
+
 x = 120; y = 80;
 
-util = utilities();
+util = utilities(deltaQ,obstacleCheckSteps);
 
 %a.add(2,2)
 
@@ -26,7 +26,7 @@ mapNorm = double(map)/255;
 mapOccupancy = 1 - mapNorm;
 trueMap = binaryOccupancyMap(mapOccupancy);
 
-%trueMap = binaryOccupancyMap(M,N);
+%trueMap = binaryOccupancyMap(120,80);
 figure(1)
 show(trueMap)
 title('Global map')
@@ -69,27 +69,23 @@ G = addnode(G,NodeProps);
 %    return G
 
 
-for i = 1:150
+for i = 1:iterations
     qrand = util.randq(x,y,dim); %adds randomly sampled configuration
-    if(~isLeagal(qrand,trueMap)) %resamples if random configuration is illegal
-        hej = 'skipped'
+    %if(~isLegal(qrand,trueMap)) %resamples if random configuration is illegal
+    %    continue;
+    %end
+    
+    qnear = nearest_node(G,qrand); %finds nodeID for node in graph close
+    qnew = util.newq(qnear.conf(1,:),qrand); %Take step towards sampled node
+    if(~isLegal(qnew,trueMap)) %resamples if random configuration is illegal
         continue;
     end
     
-    qnear = nearest_node(G,qrand); %finds nodeID for node in graph close
-    qnew = util.newq(qnear.conf(1,:),qrand,deltaQ); %Take step towards sampled node
-    if(~isLeagal(qnew,trueMap)) %resamples if random configuration is illegal
-        hej = 'skipped'
+    if(~util.isLegalPath(qnear.conf(1,:),qnew,trueMap)) %resamples if random configuration is illegal
         continue;
     end
 
-    %Add new node to graph
-    NodeProps = table(numnodes(G)+1,qnew, ...
-    'VariableNames', {'nodeID','conf'});
-    G = addnode(G,NodeProps);
-
-    %Add edge between nearest node and new node
-    G = addedge(G,qnear.nodeID,numnodes(G));
+    G = util.addConfiguration(G,qnear,qnew);
 end
 
 show(trueMap)
