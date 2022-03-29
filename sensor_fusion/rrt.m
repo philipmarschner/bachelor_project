@@ -7,7 +7,7 @@ run('config.m') %run config file with properties
 %%Test data
 %Properties
 
-x = 120; y = 80;
+
 
 util = utilities(deltaQ,obstacleCheckSteps);
 
@@ -15,16 +15,16 @@ util = utilities(deltaQ,obstacleCheckSteps);
 
 %a.multiplyBy(4,5)
 
-start = [40 60];
-%start = [5 5 95 95];
-goal = [60 80 30 5];
-MAX_ITERATIONS = 1000;
+
+
 dim = length(start)/2;
 
-map = imread("big_world.png"); map = map(:, :, 2); %Load map and make 2dim
+map = imread(mapPath); map = map(:, :, 2); %Load map and make 2dim
 mapNorm = double(map)/255;
 mapOccupancy = 1 - mapNorm;
 trueMap = binaryOccupancyMap(mapOccupancy);
+x = trueMap.GridSize(2); y = trueMap.GridSize(1);
+
 
 %trueMap = binaryOccupancyMap(120,80);
 figure(1)
@@ -70,12 +70,20 @@ G = addnode(G,NodeProps);
 
 
 for i = 1:iterations
-    qrand = util.randq(x,y,dim); %adds randomly sampled configuration
+
+    if(rand < 1 - epsilonGoal)  %Sample goal epsilon times
+        qrand = util.randq(x,y,dim); %adds randomly sampled configuration
+    else
+        qrand = goal;
+    end
+    
     %if(~isLegal(qrand,trueMap)) %resamples if random configuration is illegal
     %    continue;
     %end
     
     qnear = nearest_node(G,qrand); %finds nodeID for node in graph close
+
+
     qnew = util.newq(qnear.conf(1,:),qrand); %Take step towards sampled node
     if(~isLegal(qnew,trueMap)) %resamples if random configuration is illegal
         continue;
@@ -86,8 +94,20 @@ for i = 1:iterations
     end
 
     G = util.addConfiguration(G,qnear,qnew);
+    
+    %If dist to goal < deltaQ, connect to goal, if possible
+    dist = norm(goal-G.Nodes.conf(end,:));
+    if(dist < deltaGoal)
+        [G, connected]= util.connectToGoal(goal,G,trueMap);
+        if(connected)
+            disp("goal found");
+            break;
+        end
+    end
 end
+%% END OF RRT ALGORITHM
 
 show(trueMap)
 hold on
-plot(G.Nodes.conf(:,1),G.Nodes.conf(:,2),'.')
+plot(G.Nodes.conf(:,1),G.Nodes.conf(:,2),'.','Color','b')
+plot(G.Nodes.conf(:,3),G.Nodes.conf(:,4),'.','Color','r')

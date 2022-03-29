@@ -46,5 +46,20 @@ classdef utilities
         %Add edge between nearest node and new node
         newGraph = addedge(newGraph,qnear.nodeID,numnodes(newGraph));
       end
+
+      function [newGraph, connected]= connectToGoal(obj,goal,gOld,map)
+          q1 = gOld.Nodes(end,:);
+          q2 = goal; %goal
+
+          %Check if legal path to goal exists
+          if(~obj.isLegalPath(q1.conf(1,:), q2, map))
+              newGraph = gOld;
+              connected = false;
+              return
+          end
+          
+          newGraph = obj.addConfiguration(gOld,q1,q2);
+          connected = true;
+      end
    end
 end
