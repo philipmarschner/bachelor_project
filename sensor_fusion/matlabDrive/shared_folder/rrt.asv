@@ -107,7 +107,10 @@ for i = 1:iterations
 end
 %% END OF RRT ALGORITHM
 
+
+
 show(trueMap)
 hold on
 plot(G.Nodes.conf(:,1),G.Nodes.conf(:,2),'.','Color','b')
 plot(G.Nodes.conf(:,3),G.Nodes.conf(:,4),'.','Color','r')
+

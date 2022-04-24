@@ -89,5 +89,5 @@ for i = 1:max(length(R1_plan),length(R2_plan))
     pause(0.05)
 end
 
-plannerRRTStar
+%plannerRRTStar
 

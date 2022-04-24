@@ -1,15 +1,12 @@
 classdef utilities
    properties
-       deltaQ
+       deltaQ %stepsize when generating new configuration
        obstacleCheckSteps
    end
    methods
       function obj = utilities(deltaQ_, obstacleCheckSteps_)
          obj.deltaQ = deltaQ_;
          obj.obstacleCheckSteps = obstacleCheckSteps_;
-      end
-      function r = add(obj,a,b)
-         r = a+b;
       end
 
       function output = randq(obj, width, height, dim)

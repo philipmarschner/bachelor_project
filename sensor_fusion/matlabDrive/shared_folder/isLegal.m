@@ -32,5 +32,12 @@ function [output] = isLegal(q,map)
         end
     end
     %check if critical section is visible, if any of the configurations is inside
+    
+    
+    
+    
+    
+    
+    
     output = true;
 end
