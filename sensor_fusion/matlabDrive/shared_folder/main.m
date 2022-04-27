@@ -6,9 +6,10 @@ close all;
 
 %% Setup of robots
 run('config.m')
-load('polygon.mat')
-robots(1) = robot(lidar_type_1,zones(1),0.9);
-robots(2) = robot(lidar_type_1,zones(2),0.9);
+
+
+robots(1) = robot(lidar_type_1,squeeze(zones(1,:,:)),0.9);
+robots(2) = robot(lidar_type_1,squeeze(zones(2,:,:)),0.9);
 
 
 %% Plan a path 

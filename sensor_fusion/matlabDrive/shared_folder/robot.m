@@ -28,14 +28,33 @@ classdef robot
             
             
             %should update map from global before
+            temp = ones(map.GridSize(1),map.GridSize(2));
+            occ = binaryOccupancyMap(temp);
            
+            
+            
+            
             pose = [q(1) q(2) 0]; % x y theta
             [ranges, angles] = obj.lidar(pose,map);
             ranges(isnan(ranges)) = obj.lidar.Range(2);
+            
+            scan = lidarScan(round(ranges),round(angles));
+          
+            
             x = ranges.*cos(angles) + pose(1);
             y = ranges.*sin(angles) + pose(2);
+            
+            
+            insertRay(occ,[pose(1) pose(2)],[x y]);
+            
+           
+            vis = occ;
+           
+            
 
-            vis = polyshape(x,y); %Polygon of area in vision
+           
+            
+            
 
           
         end
@@ -44,9 +63,13 @@ classdef robot
         
         function vis_scalar = robotSectorVis(obj,total_poly)
             
-            intersection = intersect(total_poly,obj.awarenessSection);
+            %intersection = intersect(total_poly,obj.awarenessSection);
             
-            vis_scalar = area(intersection) / area(obj.awarenessSection);
+            intersection = total_poly & obj.awarenessSection;
+            
+            vis_scalar = sum(intersection,'all')/sum(obj.awarenessSection,'all');
+            
+            %vis_scalar = area(intersection) / area(obj.awarenessSection);
            
             
         end
@@ -65,7 +88,7 @@ classdef robot
         end
                  
         function output = inZone(obj,pos)
-            output = isinterior(obj.awarenessSection,pos);
+            output = obj.awarenessSection(pos(2),pos(1));
         end
         
         

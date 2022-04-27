@@ -1,14 +1,14 @@
 
 %step size for planner
-deltaQ = 1.5;
+deltaQ = 3;
 
-polygons = load('polygon.mat');
+load('polygon.mat');
 
 %If dist to goal < deltaQ, connect to goal, if possible
 deltaGoal = 1*deltaQ;
 
 %number of samples in rrt planner
-maxIterations = 1000;
+maxIterations = 5000;
 
 %number of steps to check between two nodes
 obstacleCheckSteps = deltaQ*2;

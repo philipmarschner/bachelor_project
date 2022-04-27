@@ -108,6 +108,19 @@ classdef FleetPlanner
                
             total = temp_poly;
         end
+
+        function visibilArea = totalVisibility(obj,q)
+            
+            visibilArea = zeros(obj.map.GridSize(1),obj.map.GridSize(2));
+            
+            
+            for i = 1:obj.numRobots
+                temp_map = obj.robots(i).robotVisibleSector(iConfiguration(obj,i,q),obj.map);
+                temp_matrix = ~occupancyMatrix(temp_map);
+                visibilArea = visibilArea | temp_matrix;
+                
+            end
+        end
                 
         function node = nearest_node(obj,g,q) %find node closest to node a in graph g
             node = g.Nodes(knnsearch(g.Nodes.conf,q),:); 
@@ -172,25 +185,13 @@ classdef FleetPlanner
                 end
             end
             
-            
-           
-            
-            
             %check if critical section is visible, if any of the configurations is inside
-            for i = 1:obj.numRobots
-                
-                
-                
+            for i = 1:obj.numRobots      
                 if obj.robots(i).inZone(tempq(i,:))
-
-                    if ~(obj.robots(i).legalVisibility(obj.totalPoly(q)))
+                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)))
                         output = false;
-
-
-
                         return
                     end
-                
                 end
             end
            
