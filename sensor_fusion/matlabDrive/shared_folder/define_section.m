@@ -5,7 +5,7 @@ user_input = input("How many robot zones do you want to define?");
 
 
 
-img = imread('45deg_noObstacles.png');
+img = imread('45deg_1Obstacles.png');
 imshow(img)
 [x,y,~]  = size(img);
 zones = zeros(user_input,x,y);

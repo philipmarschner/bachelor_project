@@ -11,12 +11,13 @@ classdef robot
     end
     
     methods
-        function obj = robot(lidar,awarenessSection,threshold)
+        function obj = robot(lidar,awarenessSection,threshold,map)
             %ROBOT Construct an instance of this class
             %   Detailed explanation goes here
             obj.lidar = lidar;
-            obj.awarenessSection = awarenessSection;
+            obj.awarenessSection = awarenessSection & ~occupancyMatrix(map);
             obj.threshold = threshold;
+            obj.map = map;
             
         end
         

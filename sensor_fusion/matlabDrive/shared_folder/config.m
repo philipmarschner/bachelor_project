@@ -2,10 +2,14 @@
 %step size for planner
 deltaQ = 3;
 
-load('polygon.mat');
+load('zones.mat');
 
 %If dist to goal < deltaQ, connect to goal, if possible
 deltaGoal = 1*deltaQ;
+
+%radius of neighbourhood
+
+neighbourhood_radius = 3*deltaQ;
 
 %number of samples in rrt planner
 maxIterations = 5000;
@@ -21,11 +25,7 @@ epsilonGoal = 0.10;
 
 %start and goal configurations
 start = [30 5 110 60];
-goal = [60 65 23 23];
-
-%Robot 1 parameters
-robot1_start = [30 5];
-robot1_goal = [60 65];
+goal = [60 65 23 8];
 
 % dim = amount of robots
 dim = length(start)/2;
@@ -40,7 +40,7 @@ clear map mapNorm mapOccupancy;
 
 %lidar specs type 1
 lidar_min_range = 0;
-lidar_max_range = 20;
+lidar_max_range = 200;
 lidar_min_angle = -pi;
 lidar_max_angle = pi;
 lidar_type_1 = rangeSensor;

@@ -109,8 +109,8 @@ classdef simulator
             hold on
             for i=1:obj.numRobots
                 x = obj.route(:,(i-1)*2+1)';
+                x = 
                 y = obj.route(:,(i-1)*2+2)';
-                y = obj.mapHeight - y;
                 z = zeros(size(x));
                 time = 1:length(x);
                 surface([x;x],[y;y],[z;z],[time;time],...

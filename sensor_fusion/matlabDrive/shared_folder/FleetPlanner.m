@@ -48,9 +48,11 @@ classdef FleetPlanner
         end
 
         function output = plan(obj) % Returns path from start to goal
+            dist2goal = [];
             for i = 1:obj.rrtMaxIterations
                 if i == obj.rrtMaxIterations
                     msg = 'Max iterations during planning';
+                    
                     error (msg);
                 end
                 
@@ -68,7 +70,7 @@ classdef FleetPlanner
                 obj.randomPoints = [obj.randomPoints; qrand];
 
                 qnear = obj.nearest_node(obj.legalConfigurations,qrand); %finds nodeID for node in graph close
-            
+                
                 qnew = obj.newq(qnear.conf(1,:),qrand); %Take step towards sampled node
             
                 if(~obj.isLegalConfiguration(qnew,obj.map)) %resamples if random configuration is illegal
@@ -83,6 +85,7 @@ classdef FleetPlanner
             
                 %If dist to goal < deltaQ, connect to goal, if possible
                 dist = norm(obj.goal-obj.legalConfigurations.Nodes.conf(end,:));
+                dist2goal = [dist2goal;dist];
                 if(dist < obj.deltaGoal)
                     [obj.legalConfigurations, connected] = obj.connectToGoal(obj.goal,obj.legalConfigurations,obj.map);
                     if(connected)
@@ -188,6 +191,9 @@ classdef FleetPlanner
             %check if critical section is visible, if any of the configurations is inside
             for i = 1:obj.numRobots      
                 if obj.robots(i).inZone(tempq(i,:))
+                    
+                   
+                    
                     if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)))
                         output = false;
                         return
@@ -256,6 +262,42 @@ classdef FleetPlanner
                     return;
                 end
             end
+        end
+        
+        
+        function [inzone,out] = plot_route_visibility(obj,route)
+            
+           out = {}; 
+           inzone = {};
+           
+            
+           
+           
+           
+               
+
+            for i = 1:obj.numRobots    
+                
+                tempin = {};
+                tempout = {};
+                
+                for j = 1:length(route)
+
+                    if obj.robots(i).inZone(iConfiguration(obj,i,route(j,:)))
+
+                   %inzone(i,:) = [inzone(i,:) [obj.robots(i).robotSectorVis(obj.totalVisibility(route(j,:))),route(j,:)]];
+                   
+                    tempin(1,end+1) = [tempin [obj.robots(i).robotSectorVis(obj.totalVisibility(route(j,:))),route(j,:)]];
+
+                    else
+
+                    tempout(1,end+1) = [tempout [obj.robots(i).robotSectorVis(obj.totalVisibility(route(j,:))),route(j,:)]];
+
+                    end
+                end
+                
+                
+            end  
         end
     end
 end
