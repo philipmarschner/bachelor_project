@@ -25,7 +25,7 @@ epsilonGoal = 0.10;
 
 %start and goal configurations
 start = [30 5 110 60];
-goal = [60 65 23 8];
+goal = [60 65 30 5];
 
 % dim = amount of robots
 dim = length(start)/2;

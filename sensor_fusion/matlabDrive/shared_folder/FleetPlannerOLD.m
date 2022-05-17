@@ -15,13 +15,12 @@ classdef FleetPlanner
         epsilonGoal         % Bias towards sampling goal in RRT
         numRobots
         obstacleCheckSteps
-        neighbourhood_radius
-      
+        randomPoints
     end
 
     methods
         
-        function obj = FleetPlanner(map, robots, start, goal, deltaQ, deltaGoal, rrtMaxIterations, epsilonGoal,obstacleCheckSteps,radius)
+        function obj = FleetPlanner(map, robots, start, goal, deltaQ, deltaGoal, rrtMaxIterations, epsilonGoal,obstacleCheckSteps)
             % Construct an instance of this class
             obj.map = map;
             obj.robots = robots;
@@ -33,13 +32,12 @@ classdef FleetPlanner
             obj.epsilonGoal = epsilonGoal;
             obj.numRobots = length(start)/2;
             obj.obstacleCheckSteps = obstacleCheckSteps;
-            obj.neighbourhood_radius = radius;
-            
+            obj.randomPoints = [];
 
             %Graph creation
                 G = graph();
-                NodeProps = table(1,start,0, ...
-                    'VariableNames', {'nodeID','conf','dist'});
+                NodeProps = table(1,start, ...
+                    'VariableNames', {'nodeID','conf'});
                 G = addnode(G,NodeProps);
             obj.legalConfigurations = G;
             
@@ -50,10 +48,16 @@ classdef FleetPlanner
         end
 
         function output = plan(obj) % Returns path from start to goal
+            dist2goal = [];
             for i = 1:obj.rrtMaxIterations
                 if i == obj.rrtMaxIterations
                     msg = 'Max iterations during planning';
-                    error (msg);
+                    
+                    if ~connected
+                        
+                        error (msg);
+                        
+                    end
                 end
                 
                 if(rand < 1 - obj.epsilonGoal)  %Sample goal epsilon times
@@ -67,10 +71,10 @@ classdef FleetPlanner
                 else
                     qrand = obj.goal;
                 end
-                
+                obj.randomPoints = [obj.randomPoints; qrand];
 
                 qnear = obj.nearest_node(obj.legalConfigurations,qrand); %finds nodeID for node in graph close
-            
+                
                 qnew = obj.newq(qnear.conf(1,:),qrand); %Take step towards sampled node
             
                 if(~obj.isLegalConfiguration(qnew,obj.map)) %resamples if random configuration is illegal
@@ -80,47 +84,19 @@ classdef FleetPlanner
                 if(~obj.isLegalConnection(qnear.conf(1,:),qnew,obj.map)) %resamples if random configuration is illegal
                     continue;
                 end
-                
-                
-                
-                neighbours = find_neighbours(obj,obj.legalConfigurations,qnew,obj.neighbourhood_radius);
-                
-                start_to_qnew = qnear.dist+norm(qnear.conf(1,:)-qnew);
-                
-                %find closest neighbour
-                
-                for i=1:height(neighbours)
-                    
-                    dist_from_start = neighbours(i,:).dist+norm(neighbours(i,:).conf(1,:)-qnew);
-                    
-                    if(dist_from_start<start_to_qnew)
-                        qnear = neighbours(i,:);
-                        start_to_qnew = dist_from_start;
-                        
-                    end
-                    
-                end
-                
-                
-                
             
                 obj.legalConfigurations = obj.addConfiguration(obj.legalConfigurations,qnear,qnew);
             
                 %If dist to goal < deltaQ, connect to goal, if possible
                 dist = norm(obj.goal-obj.legalConfigurations.Nodes.conf(end,:));
+                dist2goal = [dist2goal;dist];
                 if(dist < obj.deltaGoal)
                     [obj.legalConfigurations, connected] = obj.connectToGoal(obj.goal,obj.legalConfigurations,obj.map);
                     if(connected)
                         disp("goal found");
-                        break;
+                        %break;
                     end
                 end
-                
-                %optimize graph
-                
-                obj.optimize_graph(obj.legalConfigurations.Nodes(end,:),neighbours);
-                
-                
             end
 
             output = obj;
@@ -219,7 +195,10 @@ classdef FleetPlanner
             %check if critical section is visible, if any of the configurations is inside
             for i = 1:obj.numRobots      
                 if obj.robots(i).inZone(tempq(i,:))
-                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)) > 0.9)
+                    
+                   
+                    
+                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)))
                         output = false;
                         return
                     end
@@ -232,8 +211,8 @@ classdef FleetPlanner
         
         function newGraph = addConfiguration(obj, gOld, qnear, qnew)
             %Add new node to graph
-            NodeProps = table(numnodes(gOld)+1,qnew,qnear.dist+(norm(qnew-qnear.conf(1,:))), ...
-                'VariableNames', {'nodeID','conf','dist'});
+            NodeProps = table(numnodes(gOld)+1,qnew, ...
+                'VariableNames', {'nodeID','conf'});
             newGraph = addnode(gOld,NodeProps);
 
             %Add edge between nearest node and new node
@@ -289,91 +268,40 @@ classdef FleetPlanner
             end
         end
         
-        function neighbours = find_neighbours(obj,g,q,r)
+        
+        function [inzone,out] = plot_route_visibility(obj,route)
             
-            neighbours = [];
+           out = {}; 
+           inzone = {};
+           
             
-            for i=1:numnodes(g)
-                
-                dist = norm(g.Nodes.conf(i,:)-q);
-                
-                if dist<r
-                    neighbours = [neighbours; g.Nodes(i,:)];
-                    
-                end
-                    
-                    
-                
-                
-                
-            end
-            
-            
-        end
-       
-        function optimize_graph(obj,new_node,neighbours)
-            
-            
-            
-            for i=1:height(neighbours)
-                
-                dist_to_new_node = norm(new_node.conf(1,:)-neighbours(i,:).conf(1,:));
-                
-                if(new_node.dist+dist_to_new_node < neighbours(i,:).dist)
-                    %remove neighbours last edge and replace with edge to
-                    %new node
-                    
-                    obj.replace_parent_edge(neighbours(i,:),new_node);
-                    
-                    disp(dist_to_new_node)
-                    
-                    neighbours(i,:).dist = new_node.dist+dist_to_new_node;
-                    
-                end
-                    
+           
+           
+           
                
+
+            for i = 1:obj.numRobots    
                 
-            end
-            
-            
-        end
-        
-        
-        function replace_parent_edge(obj,node,new_parent)
-            
-            for i=1:numedges(obj.legalConfigurations)
+                tempin = {};
+                tempout = {};
                 
-                if(obj.legalConfigurations.Edges(i,2)==node.nodeID)
-                    
-                    obj.legalConfigurations.Edges(i,1) =new_parent.nodeID;
-                    
-                end
-                
-            end
-            
-            
-            
-        end
-        
-        
-        function vec = plot_visibility(obj)
-            
-            vec = [];
-            
-             for i = 1:obj.numRobots      
-                if obj.robots(i).inZone(tempq(i,:))
-                    
-                    
-                    
-                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)))
-                        output = false;
-                        return
+                for j = 1:length(route)
+
+                    if obj.robots(i).inZone(iConfiguration(obj,i,route(j,:)))
+
+                   %inzone(i,:) = [inzone(i,:) [obj.robots(i).robotSectorVis(obj.totalVisibility(route(j,:))),route(j,:)]];
+                   
+                    tempin(1,end+1) = [tempin [obj.robots(i).robotSectorVis(obj.totalVisibility(route(j,:))),route(j,:)]];
+
+                    else
+
+                    tempout(1,end+1) = [tempout [obj.robots(i).robotSectorVis(obj.totalVisibility(route(j,:))),route(j,:)]];
+
                     end
                 end
-             end
+                
+                
+            end  
         end
-        
-            
-            
     end
 end
