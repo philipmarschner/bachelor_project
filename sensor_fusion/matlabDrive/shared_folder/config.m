@@ -12,7 +12,7 @@ deltaGoal = 1*deltaQ;
 neighbourhood_radius = 3*deltaQ;
 
 %number of samples in rrt planner
-maxIterations = 5000;
+maxIterations = 3000;
 
 %number of steps to check between two nodes
 obstacleCheckSteps = deltaQ*2;
@@ -24,8 +24,8 @@ mapPath = "45deg_noObstacles.png";
 epsilonGoal = 0.10;
 
 %start and goal configurations
-start = [30 5 110 60];
-goal = [60 65 30 5];
+start = [30 5 110 60 60 65];
+goal = [60 65 30 5 110 60];
 
 % dim = amount of robots
 dim = length(start)/2;

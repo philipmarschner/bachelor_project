@@ -294,12 +294,19 @@ classdef FleetPlanner
             configs = obj.legalConfigurations.Nodes.conf(:,:);
             [neighbourIDs D] = rangesearch(configs,q,r,'Distance',@distfun);
             
-            neighbourIDs = cell2mat(neighbourIDs);
-            neighbours = table;
-            nodes = obj.legalConfigurations.Nodes;
-            for i = 1:length(neighbourIDs)
-                neighbours = [neighbours; nodes(neighbourIDs(i),:)];
-            end
+            
+
+            neighbours = [];
+            
+            for i=1:numnodes(g)
+                
+                dist = norm(g.Nodes.conf(i,:)-q);
+                
+                if dist<r
+                    neighbours = [neighbours; g.Nodes(i,:)];
+                    
+                end
+            end            
         end
        
         function optimize_graph(obj,new_node,neighbours)
@@ -326,10 +333,10 @@ classdef FleetPlanner
         
         
         function replace_parent_edge(obj,node,new_parent)
-            edges = obj.legalConfigurations.Edges.EndNodes;
+            
             for i=1:numedges(obj.legalConfigurations)
                 
-                if(edges(i,2)==node.nodeID)
+                if(obj.legalConfigurations.Edges.EndNodes(i,2)==node.nodeID)
                     edgeTemp = obj.legalConfigurations.Edges.EndNodes(i,:);
                     obj.legalConfigurations = rmedge(obj.legalConfigurations,edgeTemp(1),edgeTemp(2));
                     
@@ -380,9 +387,8 @@ classdef FleetPlanner
         
         function childIDs = getChildrens(obj, node)
             childIDs = [];
-            edges = obj.legalConfigurations.Edges.EndNodes;
             for i=1:numedges(obj.legalConfigurations)
-                if(edges(i,1)==node.nodeID)
+                if(obj.legalConfigurations.Edges.EndNodes(i,1)==node.nodeID)
                     childIDs = [childIDs; obj.legalConfigurations.Edges.EndNodes(i,2)];
                 end
             end
