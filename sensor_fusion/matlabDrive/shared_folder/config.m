@@ -2,7 +2,8 @@
 %step size for planner
 deltaQ = 3;
 
-load('zones.mat');
+load('zones.mat');  %User defined zones
+load('dynamicZones.mat'); %Dynamic zones
 
 %If dist to goal < deltaQ, connect to goal, if possible
 deltaGoal = 1*deltaQ;

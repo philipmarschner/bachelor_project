@@ -92,6 +92,9 @@ classdef robot
             output = obj.awarenessSection(pos(2),pos(1));
         end
         
+       
+            
+        
         
         %make callback to update map when new ros scan is available
 
