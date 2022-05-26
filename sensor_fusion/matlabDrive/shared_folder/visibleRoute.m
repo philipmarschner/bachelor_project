@@ -1,7 +1,4 @@
 figure
-
-
-
 show(trueMap)
 hold on
 title('Visible route')
