@@ -1,7 +1,7 @@
 %Parameters
 mapPath = "45_deg_kval.png";
 dist = 10;
-r = 100;
+r = 30;
 lineWidth = 3;
 
 
@@ -53,8 +53,7 @@ for k = 1:length(lines)
       xy_long = xy;
    end
 end
-%%
-figure, imshow(I), hold on
+
 zones = zeros(1,size(I,2),size(I,1));
 for i = 1:length(lines)-1   
     for j = i+1:length(lines)
@@ -102,21 +101,11 @@ for i = 1:length(lines)-1
             th = linspace(angleB,angleA+2*pi,50);
             x = r*cos(th)+interPoint(1);
             y = r*-sin(th)+interPoint(2);
-            if x(25) < 0 || y(25) < 0 || x(25) > (size(I,2) -2) || y(25) > (size(I,1) - 2)
-                continue;
-            elseif(I(round(y(25)),round(x(25))) == 0 )
-                continue;
-            end
             plot(x,y,'LineWidth',lineWidth,'color','r');
         else
             th = linspace(angleB,angleA,50);
             x = r*cos(th)+interPoint(1);
             y = r*-sin(th)+interPoint(2);
-            if x(25) < 0 || y(25) < 0 || x(25) > (size(I,2) -2) || y(25) > (size(I,1) - 2)
-                continue;
-            elseif(I(round(y(25)),round(x(25))) == 0 )
-                continue;
-            end
             plot(x,y,'LineWidth',lineWidth,'color','r');
         end
         x = [x interPoint(1)];
@@ -126,14 +115,7 @@ for i = 1:length(lines)-1
         zones(size(zones,1)+1,:,:) =mask;
     end
 end
-title('Map with critical zones')
 
-figure
-combined = zeros(size(I,2),size(I,1));
 for i=1:size(zones,1)
-    combined = combined | squeeze(zones(i,:,:));
+    figu
 end
-imshow(combined);
-title('Critical zones of the environment')
-
-save('dynamicZones','zones')

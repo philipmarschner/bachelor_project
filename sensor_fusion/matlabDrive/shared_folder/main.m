@@ -22,3 +22,4 @@ route = FP.start2goal();
 %% Simulate
 %SIM = simulator(route,trueMap,polygons,lidar_type_1,lidar_max_range,simPauseTime);
 %SIM.twoRobotSimulator;
+
