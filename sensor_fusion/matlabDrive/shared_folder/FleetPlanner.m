@@ -112,7 +112,8 @@ classdef FleetPlanner
                 if(dist < obj.deltaGoal && ~goalFound)
                     [obj.legalConfigurations, connected] = obj.connectToGoal(obj.goal,obj.legalConfigurations,obj.map);
                     if(connected)
-                        disp("goal found");
+                        disp("goal found at ");
+                        i
                         obj.goalNodeID = numnodes(obj.legalConfigurations);
                         goalFound = true;
                     end
@@ -218,9 +219,10 @@ classdef FleetPlanner
             end
             
             %check if critical section is visible, if any of the configurations is inside
-            for i = 1:obj.numRobots      
-                if obj.robots(i).inZone(tempq(i,:))
-                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)) > 0.9)
+            for i = 1:obj.numRobots    
+                zoneIDs = obj.robots(i).inZone(tempq(i,:));  
+                if ~isempty(zoneIDs)
+                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q),zoneIDs))
                         output = false;
                         return
                     end

@@ -15,10 +15,14 @@ classdef robot
             %ROBOT Construct an instance of this class
             %   Detailed explanation goes here
             obj.lidar = lidar;
-            obj.awarenessSection = awarenessSection & ~occupancyMatrix(map);
             obj.threshold = threshold;
             obj.map = map;
             
+            obj.awarenessSection = []; %image coordinate
+            
+            for i = 1 : size(awarenessSection,3)
+                obj.awarenessSection=  cat(3,obj.awarenessSection, squeeze(awarenessSection(:,:,i)) & ~occupancyMatrix(map));
+            end
         end
         
         
@@ -62,34 +66,41 @@ classdef robot
         
         
         
-        function vis_scalar = robotSectorVis(obj,total_poly)
+        function vis_scalar = robotSectorVis(obj,total_poly,zoneID)
             
             %intersection = intersect(total_poly,obj.awarenessSection);
             
-            intersection = total_poly & obj.awarenessSection;
+            intersection = total_poly & squeeze(obj.awarenessSection(:,:,zoneID));
             
-            vis_scalar = sum(intersection,'all')/sum(obj.awarenessSection,'all');
+            vis_scalar = sum(intersection,'all')/sum(squeeze(obj.awarenessSection(:,:,zoneID)),'all');
             
             %vis_scalar = area(intersection) / area(obj.awarenessSection);
            
-            
         end
         
         
-        function legal = legalVisibility(obj,total_poly)
+        function legal = legalVisibility(obj,total_poly,zoneIDS)
             
-            
-            if robotSectorVis(obj,total_poly) > obj.threshold
-                legal = true;
-                
-            else
-                legal = false;
-            end
-            
+            for i = 1:length(zoneIDS)
+
+                if obj.robotSectorVis(total_poly,zoneIDS(i)) < obj.threshold
+                    legal = false;
+                    return;
+                end
+            end  
+            legal = true;  
         end
                  
-        function output = inZone(obj,pos)
-            output = obj.awarenessSection(pos(2),pos(1));
+        function zoneIDs = inZone(obj,pos)
+
+            temp = [];
+            for i = 1:size(obj.awarenessSection,3)
+                if obj.awarenessSection(size(obj.awarenessSection,1)-pos(2),pos(1),i)
+                    temp = [temp i];
+                end
+            end
+
+            zoneIDs = temp;
         end
         
        

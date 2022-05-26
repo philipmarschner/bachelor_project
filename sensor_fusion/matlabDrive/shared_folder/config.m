@@ -1,9 +1,13 @@
 
 %step size for planner
-deltaQ = 3;
+deltaQ = 3*7;
 
-load('zones.mat');  %User defined zones
+
+load('start.mat');
+load('goal.mat');
 load('dynamicZones.mat'); %Dynamic zones
+
+%load('zones.mat');  %User defined zones
 
 %If dist to goal < deltaQ, connect to goal, if possible
 deltaGoal = 1*deltaQ;
@@ -13,20 +17,20 @@ deltaGoal = 1*deltaQ;
 neighbourhood_radius = 3*deltaQ;
 
 %number of samples in rrt planner
-maxIterations = 3000;
+maxIterations = 8000;
 
 %number of steps to check between two nodes
 obstacleCheckSteps = deltaQ*2;
 
 %map to plan through
-mapPath = "45deg_noObstacles.png";
+mapPath = "90_deg_kval.png";
 
 %Bias towards goal
 epsilonGoal = 0.10;
 
 %start and goal configurations
-start = [30 5 110 60 60 65];
-goal = [60 65 30 5 110 60];
+%start = [30*6 5*9 110*6 60*9 60*6 65*9];
+%goal = [60*6 65*9 30*6 5*9 110*6 60*9];
 
 % dim = amount of robots
 dim = length(start)/2;

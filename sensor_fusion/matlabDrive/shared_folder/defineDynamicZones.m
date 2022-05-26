@@ -1,5 +1,5 @@
 %Parameters
-mapPath = "45_deg_kval.png";
+%mapPath = '90_deg_kval.png';
 dist = 10;
 r = 100;
 lineWidth = 3;
@@ -55,7 +55,8 @@ for k = 1:length(lines)
 end
 %%
 figure, imshow(I), hold on
-zones = zeros(1,size(I,2),size(I,1));
+zones = [];
+first = true;
 for i = 1:length(lines)-1   
     for j = i+1:length(lines)
         if norm(lines(i).point1-lines(j).point1) < dist
@@ -121,17 +122,20 @@ for i = 1:length(lines)-1
         end
         x = [x interPoint(1)];
         y = [y interPoint(2)];
-        mask = poly2mask(x,y,size(I,2),size(I,1));
+        mask = poly2mask(y,x,size(I,1),size(I,2));
         
-        zones(size(zones,1)+1,:,:) =mask;
+        zones = cat(3,zones,mask);
+        %zones(size(zones,1)+1,:,:) =mask;
+
+
     end
 end
 title('Map with critical zones')
 
 figure
-combined = zeros(size(I,2),size(I,1));
-for i=1:size(zones,1)
-    combined = combined | squeeze(zones(i,:,:));
+combined = zeros(size(I));
+for i=1:size(zones,3)
+    combined = combined | squeeze(zones(:,:,i));
 end
 imshow(combined);
 title('Critical zones of the environment')
