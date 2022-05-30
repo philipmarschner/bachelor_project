@@ -3,6 +3,7 @@ function output = obstacleFreePath(q1,q2,map,obstacleCheckSteps)
     x = linspace(q1(1), q2(1), round(obstacleCheckSteps));
     y = linspace(q1(2), q2(2), round(obstacleCheckSteps));
     points = [x(:), y(:)];
+    points = round(points);
     for i = 1:round(obstacleCheckSteps)
         if(checkOccupancy(map,points(i,:)))
                 output = false;

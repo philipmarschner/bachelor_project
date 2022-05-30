@@ -66,24 +66,19 @@ classdef robot
         
         
         
-        function vis_scalar = robotSectorVis(obj,total_poly,zoneID)
-            
+        function vis_scalar = compareToZone(obj,total_poly,zoneID)
             %intersection = intersect(total_poly,obj.awarenessSection);
-            
             intersection = total_poly & squeeze(obj.awarenessSection(:,:,zoneID));
-            
             vis_scalar = sum(intersection,'all')/sum(squeeze(obj.awarenessSection(:,:,zoneID)),'all');
-            
             %vis_scalar = area(intersection) / area(obj.awarenessSection);
-           
         end
         
         
-        function legal = legalVisibility(obj,total_poly,zoneIDS)
+        function legal = isLegalVisibility(obj,total_poly,zoneIDS)
             
             for i = 1:length(zoneIDS)
 
-                if obj.robotSectorVis(total_poly,zoneIDS(i)) < obj.threshold
+                if obj.compareToZone(total_poly,zoneIDS(i)) < obj.threshold
                     legal = false;
                     return;
                 end
@@ -102,10 +97,6 @@ classdef robot
 
             zoneIDs = temp;
         end
-        
-       
-            
-        
         
         %make callback to update map when new ros scan is available
 

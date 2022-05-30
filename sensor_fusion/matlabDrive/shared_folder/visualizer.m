@@ -47,7 +47,7 @@ template = imcrop(im,map,[0 0 size(zones,2) size(zones,1)]);
 template = ind2rgb(template,map);
 
 %Create mask for extracting from template
-mask = zeros(582,727);
+mask = zeros(size(zones,1:2));
 for i=1:size(zones,3)
     mask = mask | squeeze(zones(:,:,i));
 end

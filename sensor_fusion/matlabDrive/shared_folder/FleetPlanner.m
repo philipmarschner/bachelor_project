@@ -34,7 +34,6 @@ classdef FleetPlanner
             obj.numRobots = length(start)/2;
             obj.obstacleCheckSteps = obstacleCheckSteps;
             obj.neighbourhood_radius = radius;
-            
 
             %Graph creation
                 G = graph();
@@ -109,6 +108,9 @@ classdef FleetPlanner
             
                 %If dist to goal < deltaQ, connect to goal, if possible
                 dist = norm(obj.goal-obj.legalConfigurations.Nodes.conf(end,:));
+                if mod(i,3) == 0
+                    disp(dist)
+                end
                 if(dist < obj.deltaGoal && ~goalFound)
                     [obj.legalConfigurations, connected] = obj.connectToGoal(obj.goal,obj.legalConfigurations,obj.map);
                     if(connected)
@@ -128,19 +130,19 @@ classdef FleetPlanner
             output = obj;
         end
         
-        function total = totalPoly(obj,q)
-            
-            temp_poly = polyshape;
-            
-            
-            for i = 1:obj.numRobots
-                
-                temp_poly = union(obj.robots(i).robotVisibleSector(iConfiguration(obj,i,q),obj.map),temp_poly);
-                
-            end
-               
-            total = temp_poly;
-        end
+%         function total = totalPoly(obj,q)
+%             
+%             temp_poly = polyshape;
+%             
+%             
+%             for i = 1:obj.numRobots
+%                 
+%                 temp_poly = union(obj.robots(i).robotVisibleSector(iConfiguration(obj,i,q),obj.map),temp_poly);
+%                 
+%             end
+%                
+%             total = temp_poly;
+%         end
 
         function visibilArea = totalVisibility(obj,q)
             
@@ -176,7 +178,23 @@ classdef FleetPlanner
             tempq2 = reshape(q2,2,[])';
             
             for i = 1:length(tempq1(:,1))
-                if(~obstacleFreePath(tempq1(i,:),tempq2(i,:),map,obj.obstacleCheckSteps))
+                if(~obj.obstacleFreePath(tempq1(i,:),tempq2(i,:),map,obj.obstacleCheckSteps))
+                    isLegal = false;
+                    return
+                end
+            end
+            interPoints = zeros(obj.obstacleCheckSteps,1);
+            for i = 1:length(q1)
+               if (q1(i) == q2(i))
+                   interPoints(:,i) = ones(obj.obstacleCheckSteps,1)*q1(i);
+               else
+                   temp = (q1(i):(q2(i)-q1(i))/(obj.obstacleCheckSteps-1):q2(i))';
+                   interPoints(:,i) = temp;
+               end
+           end
+            interPoints = round(interPoints);
+            for i = 1:height(interPoints)
+                if(~obj.isLegalConfiguration(interPoints(i,:),obj.map)) %resamples if random configuration is illegal
                     isLegal = false;
                     return
                 end
@@ -222,7 +240,7 @@ classdef FleetPlanner
             for i = 1:obj.numRobots    
                 zoneIDs = obj.robots(i).inZone(tempq(i,:));  
                 if ~isempty(zoneIDs)
-                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q),zoneIDs))
+                    if ~(obj.robots(i).isLegalVisibility(obj.totalVisibility(q),zoneIDs))
                         output = false;
                         return
                     end
@@ -262,7 +280,7 @@ classdef FleetPlanner
             tempq1 = reshape(q1,2,[])';
             tempq2 = reshape(q2,2,[])';
             for i = 1:length(tempq1(:,1))
-                if(~obstacleFreePath(tempq1(i,:),tempq2(i,:),map,obj.obstacleCheckSteps))
+                if(~obj.obstacleFreePath(tempq1(i,:),tempq2(i,:),map,obj.obstacleCheckSteps))
                     isLegal = false;
                     return
                 end
@@ -308,6 +326,10 @@ classdef FleetPlanner
             for i=1:height(neighbours)
                 dist_to_new_node = norm(new_node.conf(1,:)-neighbours(i,:).conf(1,:));
                 if(new_node.dist+dist_to_new_node < neighbours(i,:).dist)
+                    if(~obj.isLegalConnection(new_node.conf(1,:),neighbours(i,:).conf(1,:),obj.map)) %resamples if random configuration is illegal
+                        continue;
+                    end
+                    
                     %remove neighbours last edge and replace with edge to
                     %new node
                     
@@ -358,7 +380,7 @@ classdef FleetPlanner
                     
                     
                     
-                    if ~(obj.robots(i).legalVisibility(obj.totalVisibility(q)))
+                    if ~(obj.robots(i).isLegalVisibility(obj.totalVisibility(q)))
                         output = false;
                         return
                     end
@@ -371,7 +393,6 @@ classdef FleetPlanner
             if isempty(childIDs)
                 return
             end
-
             for i = 1:length(childIDs)
                 start2parrent = obj.legalConfigurations.Nodes(node.nodeID,:).dist;
                 parrent2child = norm(node.conf(1,:) - obj.legalConfigurations.Nodes(childIDs(i),:).conf(1,:));
@@ -390,5 +411,19 @@ classdef FleetPlanner
             end
         end
 
+        function output = obstacleFreePath(obj,q1,q2,map,obstacleCheckSteps)
+            %works for 2d point
+            x = linspace(q1(1), q2(1), round(obstacleCheckSteps));
+            y = linspace(q1(2), q2(2), round(obstacleCheckSteps));
+            points = [x(:), y(:)];
+            points = round(points);
+            for i = 1:round(obstacleCheckSteps)
+                if(checkOccupancy(map,points(i,:)))
+                        output = false;
+                        return
+                end
+            end
+            output = true;
+        end
     end
 end

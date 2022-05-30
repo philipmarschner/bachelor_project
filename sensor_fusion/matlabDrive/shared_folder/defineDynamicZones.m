@@ -1,7 +1,9 @@
+close all
+
 %Parameters
 %mapPath = '90_deg_kval.png';
 dist = 10;
-r = 100;
+r = 75;
 lineWidth = 3;
 
 
@@ -122,8 +124,10 @@ for i = 1:length(lines)-1
         end
         x = [x interPoint(1)];
         y = [y interPoint(2)];
-        mask = poly2mask(y,x,size(I,1),size(I,2));
-        
+        %mask = poly2mask(y,x,size(I,1),size(I,2));
+        mask = poly2mask(x,y,size(I,1),size(I,2));
+        mask(I == 0) = 0;
+
         zones = cat(3,zones,mask);
         %zones(size(zones,1)+1,:,:) =mask;
 
